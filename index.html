@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <title>Chat</title>
+  </head>
+
+  <style>
+    #chat {
+      text-align: left;
+      background: #f1f1f1;
+      width: 500px;
+      min-height: 300px;
+      padding: 20px;
+    }
+  </style>
+
+  <body>
+    <center>
+      <h3>Chat</h3>
+      <pre id="chat"></pre>
+      <input placeholder="say something" id="text" type="text">
+    </center>
+
+    <script>
+      //Creates the web socket
+      var url = "ws://" + window.location.host + "/ws";
+      var ws = new WebSocket(url);
+
+      //Creates a random Guest name
+      var name = "Guest" + Math.floor(Math.random() * 1000);
+
+      //Gets the tags with ID "chat" and "text"
+      var chat = document.getElementById("chat");
+      var text = document.getElementById("text");
+
+      //Gets the date now
+      var now = function () {
+        var iso = new Date().toISOString();
+        return iso.split("T")[1].split(".")[0];
+      };
+
+      //On message in web socket, display the message on the screen
+      ws.onmessage = function (msg) {
+        var line =  now() + " " + msg.data + "\n";
+        chat.innerText += line;
+      };
+
+      //On key down "ENTER", the message is sent via the web socket
+      text.onkeydown = function (e) {
+        if (e.keyCode === 13 && text.value !== "") {
+          ws.send("<" + name + "> " + text.value);
+          text.value = "";
+        }
+      };
+    </script>
+  </body>
+</html>
